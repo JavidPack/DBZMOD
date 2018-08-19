@@ -41,6 +41,8 @@ namespace DBZMOD.Projectiles
             {
                 projectile.Kill();
             }
+
+            Main.GameZoomTarget += 0.003f;
         }
         public override void Kill(int timeLeft)
         {

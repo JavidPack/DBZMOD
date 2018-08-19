@@ -87,7 +87,7 @@ namespace DBZMOD.Projectiles
                     }
 
                     MyPlayer.ModPlayer(player).KiCurrent -= 2;
-                    player.velocity = new Vector2(player.velocity.X / 3, player.velocity.Y);
+                    player.velocity = new Vector2(player.velocity.X / 3, player.velocity.Y/4);
 
                     //Rock effect
                     projectile.ai[1]++;

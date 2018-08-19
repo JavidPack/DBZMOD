@@ -80,6 +80,7 @@ namespace DBZMOD
         public static ModHotKey SpeedToggle;
         public static ModHotKey QuickKi;
         public static ModHotKey TransMenu;
+        public static ModHotKey ProgMenu;
         public bool ASSJAchieved;
         public bool USSJAchieved;
         public bool SSJ2Achieved;
@@ -107,6 +108,7 @@ namespace DBZMOD
         public static bool MushroomMessage = false;
         public int KiOrbDropChance;
         public bool IsHoldingKiWeapon;
+        public float KiExperience;
         #endregion
 
         public static MyPlayer ModPlayer(Player player)
@@ -272,6 +274,7 @@ namespace DBZMOD
             tag.Add("ASSJAchieved", ASSJAchieved);
             tag.Add("USSJAchieved", USSJAchieved);
             tag.Add("SSJ3Achieved", SSJ3Achieved);
+            tag.Add("KiMax", KiMax);
             tag.Add("KiCurrent", KiCurrent);
             tag.Add("KiRegenRate", KiRegenRate);
             tag.Add("KiEssence1", KiEssence1);
@@ -315,6 +318,7 @@ namespace DBZMOD
             ASSJAchieved = tag.Get<bool>("ASSJAchieved");
             USSJAchieved = tag.Get<bool>("USSJAchieved");
             SSJ3Achieved = tag.Get<bool>("SSJ3Achieved");
+            KiMax = tag.Get<int>("KiMax");
             KiCurrent = tag.Get<int>("KiCurrent");
             KiRegenRate = tag.Get<int>("KiRegenRate");
             KiEssence1 = tag.Get<bool>("KiEssence1");
@@ -340,18 +344,22 @@ namespace DBZMOD
             //RealismMode = tag.Get<bool>("RealismMode");
         }
 
-
-
-
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
+            //Flight lol
+            if(triggersSet.Jump)
+            {
+                player.velocity = new Vector2(player.velocity.X, -3);
+                KiCurrent -= 10;
+            }
+
             if (Transform.JustPressed)
             {
-                if (!player.HasBuff(mod.BuffType("SSJ1Buff")) && SSJ1Achieved && UI.TransMenu.MenuSelection == 1 && !IsTransformingSSJ1 && !player.channel && !player.HasBuff(mod.BuffType("SSJ1KaiokenBuff")) && (!player.HasBuff(mod.BuffType("KaiokenBuff")) && !player.HasBuff(mod.BuffType("KaiokenBuffX3")) && !player.HasBuff(mod.BuffType("KaiokenBuffX10")) && !player.HasBuff(mod.BuffType("KaiokenBuffX20")) && !player.HasBuff(mod.BuffType("KaiokenBuffX100")) && !player.HasBuff(mod.BuffType("ASSJBuff")) && !player.HasBuff(mod.BuffType("USSJBuff")) && !player.HasBuff(mod.BuffType("SSJ2Buff")) && !player.HasBuff(mod.BuffType("SSJ3Buff"))))
+                if (!player.HasBuff(mod.BuffType("SSJ1Buff")) && SSJ1Achieved && UI.TransMenu.MenuSelection == 1 && !IsTransformingSSJ1 && !player.HasBuff(mod.BuffType("SSJ1KaiokenBuff")) && (!player.HasBuff(mod.BuffType("KaiokenBuff")) && !player.HasBuff(mod.BuffType("KaiokenBuffX3")) && !player.HasBuff(mod.BuffType("KaiokenBuffX10")) && !player.HasBuff(mod.BuffType("KaiokenBuffX20")) && !player.HasBuff(mod.BuffType("KaiokenBuffX100")) && !player.HasBuff(mod.BuffType("ASSJBuff")) && !player.HasBuff(mod.BuffType("USSJBuff")) && !player.HasBuff(mod.BuffType("SSJ2Buff")) && !player.HasBuff(mod.BuffType("SSJ3Buff"))))
                 {
                     player.AddBuff(mod.BuffType("SSJ1Buff"), 1800);
                     Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("SSJ1AuraProjStart"), 0, 0, player.whoAmI);
-                    Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SSJAscension").WithVolume(.7f));
+                    Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SSJAscension").WithVolume(.7f));       
                 }
                 else if (player.HasBuff(mod.BuffType("SSJ1Buff")) && ASSJAchieved && !IsTransformingSSJ1 && !player.channel && (UI.TransMenu.MenuSelection == 1))
                 {
@@ -391,8 +399,13 @@ namespace DBZMOD
             {
                 UI.TransMenu.menuvisible = !UI.TransMenu.menuvisible;
             }
-                
-            if (KaiokenKey.JustPressed && (!player.HasBuff(mod.BuffType("KaiokenBuff")) && !player.HasBuff(mod.BuffType("KaiokenBuffX3")) && !player.HasBuff(mod.BuffType("KaiokenBuffX10")) && !player.HasBuff(mod.BuffType("KaiokenBuffX20")) && !player.HasBuff(mod.BuffType("KaiokenBuffX100"))) && !player.HasBuff(mod.BuffType("TiredDebuff")) && !player.HasBuff(mod.BuffType("SSJ1Buff")) && !player.HasBuff(mod.BuffType("SSJ1KaiokenBuff")) && !player.HasBuff(mod.BuffType("SSJ2Buff")) && !player.HasBuff(mod.BuffType("SSJ3Buff")) && KaioAchieved && !player.channel)
+
+            if (ProgMenu.JustPressed)
+            {
+                UI.ProgressionMenu.menuvisible = !UI.ProgressionMenu.menuvisible;
+            }
+
+            if (KaiokenKey.JustPressed && (!player.HasBuff(mod.BuffType("KaiokenBuff")) && !player.HasBuff(mod.BuffType("KaiokenBuffX3")) && !player.HasBuff(mod.BuffType("KaiokenBuffX10")) && !player.HasBuff(mod.BuffType("KaiokenBuffX20")) && !player.HasBuff(mod.BuffType("KaiokenBuffX100"))) && !player.HasBuff(mod.BuffType("TiredDebuff")) && KaioAchieved)
             {
                 player.AddBuff(mod.BuffType("KaiokenBuff"), 18000);
                 Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("KaiokenAuraProj"), 0, 0, player.whoAmI);
@@ -426,17 +439,17 @@ namespace DBZMOD
                 Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("KaiokenAuraProjx100"), 0, 0, player.whoAmI);
                 Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/KaioAuraAscend").WithVolume(.8f));
             }
-            else if (KaiokenKey.JustPressed && (player.HasBuff(mod.BuffType("SSJ1Buff"))) && !player.HasBuff(mod.BuffType("SSJ1KaiokenBuff")) && !player.HasBuff(mod.BuffType("TiredDebuff")))
-            {
-                player.ClearBuff(mod.BuffType("KaiokenBuff"));
-                player.ClearBuff(mod.BuffType("SSJ1Buff"));
-                player.AddBuff(mod.BuffType("SSJ1KaiokenBuff"), 1800);
-                Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("KaiokenAuraProj"), 0, 0, player.whoAmI);
-                Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("SSJ1AuraProj"), 0, 0, player.whoAmI);
-                Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/KaioAuraAscend").WithVolume(.8f));
-            }
+            //else if (KaiokenKey.JustPressed && (player.HasBuff(mod.BuffType("SSJ1Buff"))) && !player.HasBuff(mod.BuffType("SSJ1KaiokenBuff")) && !player.HasBuff(mod.BuffType("TiredDebuff")))
+            //{
+            //    player.ClearBuff(mod.BuffType("KaiokenBuff"));
+            //    player.ClearBuff(mod.BuffType("SSJ1Buff"));
+            //    player.AddBuff(mod.BuffType("SSJ1KaiokenBuff"), 1800);
+            //    Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("KaiokenAuraProj"), 0, 0, player.whoAmI);
+            //    Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("SSJ1AuraProj"), 0, 0, player.whoAmI);
+            //    Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/KaioAuraAscend").WithVolume(.8f));
+            //}
 
-            if (EnergyCharge.Current && (KiCurrent < KiMax) && !player.channel)
+            if (EnergyCharge.Current && (KiCurrent < KiMax))
             {
                 KiCurrent += KiRegenRate;
                 player.velocity = new Vector2(0,player.velocity.Y);
@@ -501,66 +514,75 @@ namespace DBZMOD
         public MyPlayer() : base()
 		{
 		}
+
+        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit)
+        {
+            base.OnHitNPC(item, target, damage, knockback, crit);
+
+            KiExperience += 20;
+        }
+
+
         public override void ResetEffects()
         {
             KiDamage = 1f;
             KiKbAddition = 0f;
-            if(Fragment1)
-            {
-                KiMax = 2000;
-
-                if (Fragment2)
-                {
-                    KiMax = 4000;
-
-                    if (Fragment3)
-                    {
-                        KiMax = 6000;
-
-                        if (Fragment4)
-                        {
-                            KiMax = 8000;
-
-                            if (Fragment5)
-                            {
-                                KiMax = 10000;
-                            }
-                        }
-                    }
-                }
-            }
-           else
-            {
-                KiMax = 1000;
-            }
-            if (KiEssence1)
-            {
-                KiRegenRate = 2;
-
-                if (KiEssence2)
-                {
-                    KiRegenRate = 3;
-
-                    if (KiEssence3)
-                    {
-                        KiRegenRate = 5;
-
-                        if (KiEssence4)
-                        {
-                            KiRegenRate = 7;
-
-                            if(KiEssence5)
-                            {
-                                KiRegenRate = 10;
-                            }
-                        }
-                    }
-                }
-            }
-            if (!KiEssence1 && !KiEssence2 && !KiEssence3 && !KiEssence4 && !KiEssence5)
-            {
-                KiRegenRate = 1;
-            }
+            //if(Fragment1)
+            //{
+            //    //KiMax = 2000;
+            //
+            //    if (Fragment2)
+            //    {
+            //        //KiMax = 4000;
+            //
+            //        if (Fragment3)
+            //        {
+            //            //KiMax = 6000;
+            //
+            //            if (Fragment4)
+            //            {
+            //                //KiMax = 8000;
+            //
+            //                if (Fragment5)
+            //                {
+            //                    //KiMax = 10000;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+           //else
+            //{
+            //    //KiMax = 1000;
+            //}
+            //if (KiEssence1)
+            //{
+            //    KiRegenRate = 2;
+            //
+            //    if (KiEssence2)
+            //    {
+            //        KiRegenRate = 3;
+            //
+            //        if (KiEssence3)
+            //        {
+            //            KiRegenRate = 5;
+            //
+            //            if (KiEssence4)
+            //            {
+            //                KiRegenRate = 7;
+            //
+            //                if(KiEssence5)
+            //                {
+            //                    KiRegenRate = 10;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //if (!KiEssence1 && !KiEssence2 && !KiEssence3 && !KiEssence4 && !KiEssence5)
+            //{
+            //    KiRegenRate = 1;
+            //}
             scouterT2 = false;
             scouterT3 = false;
             scouterT4 = false;

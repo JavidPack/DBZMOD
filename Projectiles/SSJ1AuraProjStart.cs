@@ -78,6 +78,7 @@ namespace DBZMOD.Projectiles
             Projectile.NewProjectile(player.Center.X - 40, player.Center.Y + 90, 0, 0, mod.ProjectileType("SSJ1AuraProj"), 0, 0, player.whoAmI);
             MyPlayer.ModPlayer(player).IsTransformingSSJ1 = false;
             Main.PlaySound(mod.GetLegacySoundSlot(SoundType.Custom, "Sounds/SSJAscension"));
+            Main.GameZoomTarget = 1;
         }
     }
 }

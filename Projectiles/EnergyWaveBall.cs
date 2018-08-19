@@ -32,7 +32,7 @@ namespace DBZMOD.Projectiles
 			projectile.penetrate = -1;
             ChargeBall = true;
             ChargeLimit = 4;
-            KiDrainRate = 1;
+            KiDrainRate = 2;
         }
 
 		 public override Color? GetAlpha(Color lightColor)
@@ -50,7 +50,7 @@ namespace DBZMOD.Projectiles
         {
             DisplayName.SetDefault("Energy Wave Ball");
         }
-   
+
         public override void AI()
         {
             if (ChargeTimer > 90)
@@ -58,6 +58,7 @@ namespace DBZMOD.Projectiles
                 ChargeLevel += 1;
                 ChargeTimer = 0;
                 projectile.scale += 0.4f;
+                KiDrainRate += 1;
             }
 
             if(!player.channel || (ChargeLevel >= ChargeLimit))
