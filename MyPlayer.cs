@@ -108,7 +108,12 @@ namespace DBZMOD
         public static bool MushroomMessage = false;
         public int KiOrbDropChance;
         public bool IsHoldingKiWeapon;
+<<<<<<< HEAD
         public float KiExperience;
+=======
+        public bool vegetaGloves;
+        public bool senzuBag;
+>>>>>>> master
         #endregion
 
         public static MyPlayer ModPlayer(Player player)
@@ -605,6 +610,8 @@ namespace DBZMOD
 			amethystNecklace = false;
             KiOrbDropChance = 3;
             IsHoldingKiWeapon = false;
+            vegetaGloves = false;
+            senzuBag = false;
             //IsCharging = false;
         }
         public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource)
